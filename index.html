@@ -98,26 +98,6 @@ body::before{content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-
 .lyrics-hint b{color:var(--teal);font-weight:500}
 .lyrics-char-count{font-size:11px;color:var(--fg3);margin-top:8px;text-align:right}
 
-/* Lyrics search row */
-.lyrics-search-row{display:flex;gap:10px;align-items:flex-end;margin-bottom:14px}
-.lyrics-search-row .fld{flex:1}
-.btn-search-lyr{padding:13px 18px;background:var(--teal-dim);border:1.5px solid var(--teal);
-  border-radius:var(--r);color:var(--teal);font-family:'Syne',sans-serif;font-size:13px;
-  font-weight:700;letter-spacing:.07em;cursor:pointer;white-space:nowrap;
-  transition:background .2s,color .2s,transform .2s;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.btn-search-lyr:hover:not(:disabled){background:var(--teal);color:#061818;transform:translateY(-1px)}
-.btn-search-lyr:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.lyrics-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:8px;
-  font-size:12px;margin-bottom:12px;display:none}
-.lyrics-status.on{display:flex}
-.lyrics-status.searching{background:var(--teal-dim);border:1px solid rgba(56,201,201,.25);color:var(--teal)}
-.lyrics-status.found{background:var(--green-dim);border:1px solid rgba(78,203,141,.25);color:var(--green)}
-.lyrics-status.error{background:rgba(240,96,96,.08);border:1px solid rgba(240,96,96,.25);color:var(--red)}
-.lyrics-spinner{width:14px;height:14px;border:2px solid currentColor;border-top-color:transparent;
-  border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
-.lyrics-edit-note{font-size:11px;color:var(--fg3);margin-top:6px;font-style:italic}
-
 /* Buttons */
 .btn-main{width:100%;padding:18px;background:linear-gradient(135deg,var(--accent) 0%,#5a48d0 100%);
   color:white;border:none;border-radius:var(--r);font-family:'Syne',sans-serif;
@@ -306,43 +286,19 @@ body::before{content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-
   </div>
 </div>
 
-<!-- 03 Lyrics (optional) -->
+<!-- 03 Lyrics (optional) — paste only -->
 <div class="sec">
-  <div class="sec-lbl">03 · Lyrics <span style="color:var(--fg3);font-size:9px;letter-spacing:.1em">(optional)</span></div>
+  <div class="sec-lbl">03 · Lyrics <span style="color:var(--fg3);font-size:9px;letter-spacing:.1em">(optional — paste)</span></div>
   <div class="lyrics-card">
     <p class="lyrics-hint">
-      Search for lyrics automatically using AI, or paste them manually below.<br>
-      Fill in <b>Song title</b> and <b>Artist</b> first, then hit <b>Search Lyrics</b>.
+      Paste lyrics below to generate a <b>TAB + Lyrics</b> PDF version.<br>
+      Each line = one lyric phrase. Blank lines separate sections.
     </p>
-
-    <!-- Search row -->
-    <div class="lyrics-search-row">
-      <div class="fld">
-        <label class="fld-lbl">Quick search</label>
-        <input class="fld-inp" type="text" id="lyricsQuery"
-          placeholder="Song title — Artist (auto-filled from above)">
-      </div>
-      <button class="btn-search-lyr" id="btnSearchLyr" onclick="searchLyrics()" disabled>
-        <span id="searchIcon">🔍</span> Search lyrics
-      </button>
-    </div>
-
-    <!-- Status banner -->
-    <div class="lyrics-status" id="lyricsStatus">
-      <div class="lyrics-spinner" id="lyricsSpinner" style="display:none"></div>
-      <span id="lyricsStatusTxt"></span>
-    </div>
-
-    <!-- Editable textarea -->
     <div class="fld">
       <textarea class="fld-ta" id="lyricsText"
-        placeholder="Lyrics will appear here after searching, or paste them manually.&#10;&#10;Each line = one lyric phrase. Blank lines separate sections.&#10;&#10;Example:&#10;[Verse 1]&#10;First line of lyrics...&#10;Second line...&#10;&#10;[Chorus]&#10;Chorus here..."
+        placeholder="Paste lyrics here…&#10;&#10;Each line = one lyric phrase. Blank lines separate sections.&#10;&#10;Example:&#10;[Verse 1]&#10;First line of lyrics...&#10;Second line...&#10;&#10;[Chorus]&#10;Chorus here..."
         rows="8" oninput="updateLyricsCount()"></textarea>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
-        <div class="lyrics-edit-note" id="lyricsEditNote" style="display:none">
-          ✎ Auto-fetched — review and edit before generating PDF
-        </div>
-        <div style="flex:1"></div>
+      <div style="display:flex;justify-content:flex-end;align-items:center;margin-top:6px">
         <div class="lyrics-char-count" id="lyricsCount">0 lines</div>
       </div>
     </div>
@@ -359,10 +315,10 @@ body::before{content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-
 <div class="ana-wrap" id="anaWrap">
   <div class="ana-title">Analyzing audio…</div>
   <div class="steps">
-    <div class="step" id="s1"><div class="step-num">1</div><span class="step-txt">Decoding MP3 and reading audio data</span></div>
-    <div class="step" id="s2"><div class="step-num">2</div><span class="step-txt">Applying low-pass filter — bass isolation</span></div>
-    <div class="step" id="s3"><div class="step-num">3</div><span class="step-txt">YIN pitch detection — frame-by-frame analysis</span></div>
-    <div class="step" id="s4"><div class="step-num">4</div><span class="step-txt">Detecting key, scale, used notes &amp; chord progression</span></div>
+    <div class="step" id="s1"><div class="step-num">1</div><span class="step-txt">Decoding MP3 audio data</span></div>
+    <div class="step" id="s2"><div class="step-num">2</div><span class="step-txt">Bass isolation — multi-stage bandpass filtering</span></div>
+    <div class="step" id="s3"><div class="step-num">3</div><span class="step-txt">Pitch detection — YIN + Harmonic Product Spectrum</span></div>
+    <div class="step" id="s4"><div class="step-num">4</div><span class="step-txt">Key detection — Krumhansl-Schmuckler profiling</span></div>
     <div class="step" id="s5"><div class="step-num">5</div><span class="step-txt">Generating PDF tablature</span></div>
   </div>
   <div class="big-track"><div class="big-fill" id="bigFill"></div></div>
@@ -430,7 +386,6 @@ body::before{content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-
       <button class="btn-outline" onclick="updateXpDisplay()">Update</button>
     </div>
 
-    <!-- Transposed notes used (updates dynamically) -->
     <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border)">
       <div class="sub-ttl" style="margin-bottom:10px">Transposed notes</div>
       <div class="pills" id="xpNotesPills"></div>
@@ -475,7 +430,7 @@ body::before{content:'';position:fixed;top:-20vh;left:50%;transform:translateX(-
 <!-- Info tiles -->
 <div class="tiles">
   <div class="tile"><div class="tile-lbl">Tuning</div><div class="tile-val">E · A · D · G</div><div class="tile-sub">Standard 4-string</div></div>
-  <div class="tile"><div class="tile-lbl">Algorithm</div><div class="tile-val">YIN</div><div class="tile-sub">Time-domain pitch detection</div></div>
+  <div class="tile"><div class="tile-lbl">Algorithm</div><div class="tile-val">YIN + HPS</div><div class="tile-sub">Harmonic product spectrum</div></div>
   <div class="tile"><div class="tile-lbl">Output</div><div class="tile-val">A4 PDF</div><div class="tile-sub">Printable tablature</div></div>
   <div class="tile"><div class="tile-lbl">Processing</div><div class="tile-val">Client-side</div><div class="tile-sub">No server · No data sent</div></div>
 </div>
@@ -496,38 +451,73 @@ const MIN_TYPES=["min","dim","maj","min","min","maj","maj"];
 const MAJ_ROM=["I","ii","iii","IV","V","vi","vii°"];
 const MIN_ROM=["i","ii°","III","iv","v","VI","VII"];
 
+// Bass MIDI range: E1(28) to G4(67) — covers full 4-string bass fretboard (24 frets)
+const BASS_MIDI_LO = 28; // E1
+const BASS_MIDI_HI = 67; // G4 (24th fret on G string)
+
 let gNotes=[], gKeyRoot=0, gKeyMode='major', gAudioBuf=null, gSongDuration=0;
 
 const $=id=>document.getElementById(id);
-const tick=()=>new Promise(r=>setTimeout(r,40));
+const tick=(ms=0)=>new Promise(r=>setTimeout(r,ms));
 
 // ═══════════════════════════════════════════════════════
 // MUSIC HELPERS
 // ═══════════════════════════════════════════════════════
 const f2m  = f   => 69+12*Math.log2(f/440);
-const m2nn = m   => NM[((Math.round(m)%12)+12)%12]+(Math.floor(m/12)-1);
+const m2f  = m   => 440*Math.pow(2,(m-69)/12);
+const m2nn = m   => NM[((Math.round(m)%12)+12)%12]+(Math.floor(Math.round(m)/12)-1);
 const pc   = m   => ((Math.round(m)%12)+12)%12;
 const trR  = (r,s)=> ((r+s)%12+12)%12;
 
 function midiToTab(midi){
+  const m = Math.round(midi);
   let best=null,bf=999;
-  for(const s of STR){const f=Math.round(midi)-s.midi;if(f>=0&&f<=24&&f<bf){bf=f;best={string:s.name,fret:f};}}
+  for(const s of STR){
+    const f=m-s.midi;
+    if(f>=0&&f<=24&&f<bf){bf=f;best={string:s.name,fret:f};}
+  }
   return best;
 }
 
+// Krumhansl-Schmuckler key detection with proper correlation
 function detectKey(notes){
-  const h=new Float64Array(12); let tot=0;
+  const h=new Float64Array(12);
+  let tot=0;
   for(const n of notes){h[pc(n.midi)]+=n.duration;tot+=n.duration;}
   if(!tot)return{root:0,mode:'major',confidence:0};
   for(let i=0;i<12;i++)h[i]/=tot;
+
+  // Compute mean
+  let hMean=0;
+  for(let i=0;i<12;i++) hMean+=h[i];
+  hMean/=12;
+
   let best=-Infinity,root=0,mode='major';
+
   for(let r=0;r<12;r++){
-    let sm=0,sn=0;
-    for(let i=0;i<12;i++){sm+=h[(i+r)%12]*KS_MAJ[i];sn+=h[(i+r)%12]*KS_MIN[i];}
-    if(sm>best){best=sm;root=r;mode='major';}
-    if(sn>best){best=sn;root=r;mode='minor';}
+    for(const [prof,modeStr] of [[KS_MAJ,'major'],[KS_MIN,'minor']]){
+      // Pearson correlation
+      let pMean=0;
+      for(let i=0;i<12;i++) pMean+=prof[i];
+      pMean/=12;
+
+      let num=0,denA=0,denB=0;
+      for(let i=0;i<12;i++){
+        const hi=h[(i+r)%12]-hMean;
+        const pi=prof[i]-pMean;
+        num+=hi*pi;
+        denA+=hi*hi;
+        denB+=pi*pi;
+      }
+      const den=Math.sqrt(denA*denB);
+      const corr=den>0?num/den:0;
+      if(corr>best){best=corr;root=r;mode=modeStr;}
+    }
   }
-  return{root,mode,confidence:Math.min(99,Math.round(best*180))};
+
+  // Confidence: map correlation [0.3..0.9] -> [30..99]
+  const confidence=Math.min(99,Math.max(10,Math.round((best-0.1)*110)));
+  return{root,mode,confidence};
 }
 
 function getChords(root,mode){
@@ -537,7 +527,6 @@ function getChords(root,mode){
   return ints.map((iv,d)=>({root:(root+iv)%12,name:NM[(root+iv)%12],type:types[d],roman:romans[d],tonic:d===0}));
 }
 
-// Get used pitch classes with frequency weight
 function getUsedNotes(notes){
   const hist=new Float64Array(12);
   for(const n of notes) hist[pc(n.midi)]+=n.duration;
@@ -545,66 +534,428 @@ function getUsedNotes(notes){
 }
 
 // ═══════════════════════════════════════════════════════
-// YIN PITCH DETECTION
+// AUDIO PROCESSING — OfflineAudioContext for bass isolation
 // ═══════════════════════════════════════════════════════
-function yinPitch(buf,sr,thr=0.11){
-  const W=buf.length,half=Math.floor(W/2);
-  const d=new Float32Array(half);
-  for(let t=1;t<half;t++){let s=0;for(let j=0;j<half;j++){const x=buf[j]-buf[j+t];s+=x*x;}d[t]=s;}
-  const c=new Float32Array(half);c[0]=1;
-  let run=0;
-  for(let t=1;t<half;t++){run+=d[t];c[t]=run>0?d[t]*t/run:1;}
-  const lo=Math.floor(sr/196),hi=Math.min(Math.floor(sr/41),half-2);
-  let t=lo;
-  while(t<hi){if(c[t]<thr){while(t+1<hi&&c[t+1]<c[t])t++;break;}t++;}
-  if(t>=hi||c[t]>=thr)return null;
-  let bt=t;
-  if(t>0&&t<half-1){const s0=c[t-1],s1=c[t],s2=c[t+1],dn=2*(2*s1-s2-s0);if(Math.abs(dn)>1e-10)bt=t+(s2-s0)/dn;}
-  return sr/bt;
+
+/**
+ * Decode MP3 and isolate bass frequencies using OfflineAudioContext
+ * with proper biquad bandpass filtering.
+ * Returns {mono: Float32Array, sr: number}
+ */
+async function decodeBassIsolated(arrayBuffer) {
+  // First decode to get audio info
+  const tmpCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const decoded = await tmpCtx.decodeAudioData(arrayBuffer);
+  const sr = decoded.sampleRate;
+  const len = decoded.length;
+  const nCh = decoded.numberOfChannels;
+  await tmpCtx.close();
+
+  // Use OfflineAudioContext for proper filtering
+  const offline = new OfflineAudioContext(1, len, sr);
+
+  // Create buffer source
+  const source = offline.createBufferSource();
+  source.buffer = decoded;
+
+  // === Multi-stage filtering for bass isolation ===
+
+  // 1) High-pass at 30 Hz — remove sub-bass rumble
+  const hp = offline.createBiquadFilter();
+  hp.type = 'highpass';
+  hp.frequency.value = 30;
+  hp.Q.value = 0.7;
+
+  // 2) Low-pass at 350 Hz — remove mids/highs, keep fundamental bass range
+  const lp1 = offline.createBiquadFilter();
+  lp1.type = 'lowpass';
+  lp1.frequency.value = 350;
+  lp1.Q.value = 0.7;
+
+  // 3) Second low-pass at 500 Hz — gentle roll-off for harmonics needed by pitch detection
+  const lp2 = offline.createBiquadFilter();
+  lp2.type = 'lowpass';
+  lp2.frequency.value = 500;
+  lp2.Q.value = 0.5;
+
+  // 4) Peaking EQ boost at 80-200 Hz to emphasize bass fundamental
+  const peak = offline.createBiquadFilter();
+  peak.type = 'peaking';
+  peak.frequency.value = 120;
+  peak.Q.value = 0.8;
+  peak.gain.value = 6;
+
+  // Chain: source -> hp -> peak -> lp1 -> lp2 -> destination
+  source.connect(hp);
+  hp.connect(peak);
+  peak.connect(lp1);
+  lp1.connect(lp2);
+  lp2.connect(offline.destination);
+
+  source.start(0);
+  const rendered = await offline.startRendering();
+  const mono = rendered.getChannelData(0);
+
+  return { mono: new Float32Array(mono), sr };
 }
-function lpf(input,sr,cutoff){
-  const a=1/(1+sr/(2*Math.PI*cutoff)),out=new Float32Array(input.length);
-  out[0]=input[0];for(let i=1;i<input.length;i++)out[i]=out[i-1]+a*(input[i]-out[i-1]);
-  return out;
-}
-async function extractNotes(buf,onPct){
-  const ctx=new(window.AudioContext||window.webkitAudioContext)();
-  const ab=await ctx.decodeAudioData(buf.slice(0));
-  const nCh=ab.numberOfChannels,len=ab.length,sr=ab.sampleRate;
-  const mono=new Float32Array(len);
-  for(let c=0;c<nCh;c++){const ch=ab.getChannelData(c);for(let i=0;i<len;i++)mono[i]+=ch[i]/nCh;}
-  ctx.close();
-  const filt=lpf(mono,sr,280);
-  const HOP=Math.floor(sr*.04),WIN=Math.floor(sr*.08);
-  const tot=Math.floor((len-WIN)/HOP),ft=HOP/sr;
-  const raw=[];let pm=null,ns=0,nd=0;
-  for(let fi=0;fi<tot;fi++){
-    if(fi%80===0)onPct(10+(fi/tot)*70);
-    const frame=filt.slice(fi*HOP,fi*HOP+WIN);
-    let rms=0;for(const s of frame)rms+=s*s;rms=Math.sqrt(rms/frame.length);
-    const t=fi*ft;
-    if(rms<0.002){if(pm!==null){if(nd>=.06)raw.push({time:ns,duration:nd,midi:pm});pm=null;}continue;}
-    const freq=yinPitch(frame,sr,0.11);
-    if(!freq){if(pm!==null){if(nd>=.06)raw.push({time:ns,duration:nd,midi:pm});pm=null;}continue;}
-    const m=Math.round(f2m(freq));
-    if(m<28||m>51){if(pm!==null){if(nd>=.06)raw.push({time:ns,duration:nd,midi:pm});pm=null;}continue;}
-    if(m===pm){nd+=ft;}else{if(pm!==null&&nd>=.06)raw.push({time:ns,duration:nd,midi:pm});pm=m;ns=t;nd=ft;}
+
+// ═══════════════════════════════════════════════════════
+// YIN PITCH DETECTION — improved with better params
+// ═══════════════════════════════════════════════════════
+
+/**
+ * YIN pitch detection with parabolic interpolation.
+ * Tuned for electric bass: E1 (41.2 Hz) to G4 (392 Hz).
+ */
+function yinPitch(buf, sr, threshold) {
+  const W = buf.length;
+  const half = Math.floor(W / 2);
+
+  // Step 1: Difference function
+  const d = new Float32Array(half);
+  for (let tau = 1; tau < half; tau++) {
+    let sum = 0;
+    for (let j = 0; j < half; j++) {
+      const delta = buf[j] - buf[j + tau];
+      sum += delta * delta;
+    }
+    d[tau] = sum;
   }
-  if(pm!==null&&nd>=.06)raw.push({time:ns,duration:nd,midi:pm});
-  return raw.map(n=>{const tab=midiToTab(n.midi);return tab?{...n,noteName:m2nn(n.midi),string:tab.string,fret:tab.fret}:null;}).filter(Boolean);
+
+  // Step 2: Cumulative mean normalized difference
+  const cmnd = new Float32Array(half);
+  cmnd[0] = 1;
+  let runSum = 0;
+  for (let tau = 1; tau < half; tau++) {
+    runSum += d[tau];
+    cmnd[tau] = runSum > 0 ? (d[tau] * tau) / runSum : 1;
+  }
+
+  // Step 3: Search range for bass frequencies
+  // E1 = 41.2 Hz -> period = sr/41.2
+  // G4 = 392 Hz -> period = sr/392
+  const tauMin = Math.max(2, Math.floor(sr / 400));
+  const tauMax = Math.min(half - 2, Math.floor(sr / 38));
+
+  // Step 4: Find first dip below threshold
+  let bestTau = -1;
+  let tau = tauMin;
+  while (tau < tauMax) {
+    if (cmnd[tau] < threshold) {
+      // Find the local minimum
+      while (tau + 1 < tauMax && cmnd[tau + 1] < cmnd[tau]) tau++;
+      bestTau = tau;
+      break;
+    }
+    tau++;
+  }
+
+  if (bestTau < 0) return null;
+
+  // Step 5: Parabolic interpolation for sub-sample accuracy
+  if (bestTau > 0 && bestTau < half - 1) {
+    const s0 = cmnd[bestTau - 1];
+    const s1 = cmnd[bestTau];
+    const s2 = cmnd[bestTau + 1];
+    const denom = 2 * (2 * s1 - s2 - s0);
+    if (Math.abs(denom) > 1e-10) {
+      bestTau = bestTau + (s0 - s2) / denom;
+    }
+  }
+
+  const freq = sr / bestTau;
+
+  // Sanity check on frequency
+  if (freq < 38 || freq > 400) return null;
+
+  return freq;
+}
+
+// ═══════════════════════════════════════════════════════
+// HARMONIC PRODUCT SPECTRUM — resolves octave errors
+// ═══════════════════════════════════════════════════════
+
+/**
+ * Compute fundamental frequency using HPS on a frame.
+ * This multiplies the spectrum by downsampled versions of itself
+ * to find the true fundamental, fixing octave-up errors common
+ * with bass guitar detection.
+ */
+function hpsFundamental(buf, sr) {
+  // Zero-pad to next power of 2
+  const N = 1 << Math.ceil(Math.log2(buf.length));
+  const re = new Float64Array(N);
+  const im = new Float64Array(N);
+
+  // Apply Hann window and copy
+  for (let i = 0; i < buf.length; i++) {
+    const w = 0.5 * (1 - Math.cos(2 * Math.PI * i / (buf.length - 1)));
+    re[i] = buf[i] * w;
+  }
+
+  // In-place FFT (Cooley-Tukey)
+  fft(re, im, false);
+
+  // Magnitude spectrum (only first half)
+  const halfN = N >> 1;
+  const mag = new Float64Array(halfN);
+  for (let i = 0; i < halfN; i++) {
+    mag[i] = Math.sqrt(re[i] * re[i] + im[i] * im[i]);
+  }
+
+  // HPS: multiply spectrum by 2x, 3x, 4x downsampled versions
+  const hps = new Float64Array(halfN);
+  const harmonics = 4;
+
+  // Frequency bins for bass range
+  const binMin = Math.floor(38 * N / sr);   // ~38 Hz
+  const binMax = Math.min(halfN - 1, Math.ceil(400 * N / sr)); // ~400 Hz
+
+  for (let i = binMin; i < binMax; i++) {
+    let prod = mag[i];
+    let valid = true;
+    for (let h = 2; h <= harmonics; h++) {
+      const idx = i * h;
+      if (idx >= halfN) { valid = false; break; }
+      prod *= mag[idx];
+    }
+    hps[i] = valid ? prod : 0;
+  }
+
+  // Find peak in HPS
+  let maxVal = 0, maxBin = 0;
+  for (let i = binMin; i < binMax; i++) {
+    if (hps[i] > maxVal) { maxVal = hps[i]; maxBin = i; }
+  }
+
+  if (maxBin === 0 || maxVal === 0) return null;
+
+  // Parabolic interpolation around the peak for precision
+  let peakBin = maxBin;
+  if (maxBin > 0 && maxBin < halfN - 1) {
+    const a = hps[maxBin - 1];
+    const b = hps[maxBin];
+    const c = hps[maxBin + 1];
+    const d = 2 * (2 * b - a - c);
+    if (Math.abs(d) > 1e-10) {
+      peakBin = maxBin + (a - c) / d;
+    }
+  }
+
+  return peakBin * sr / N;
+}
+
+/** Simple in-place radix-2 FFT */
+function fft(re, im, inverse) {
+  const n = re.length;
+  // Bit-reversal permutation
+  for (let i = 1, j = 0; i < n; i++) {
+    let bit = n >> 1;
+    for (; j & bit; bit >>= 1) j ^= bit;
+    j ^= bit;
+    if (i < j) {
+      [re[i], re[j]] = [re[j], re[i]];
+      [im[i], im[j]] = [im[j], im[i]];
+    }
+  }
+  // Cooley-Tukey
+  for (let len = 2; len <= n; len <<= 1) {
+    const ang = 2 * Math.PI / len * (inverse ? -1 : 1);
+    const wRe = Math.cos(ang), wIm = Math.sin(ang);
+    for (let i = 0; i < n; i += len) {
+      let curRe = 1, curIm = 0;
+      for (let j = 0; j < (len >> 1); j++) {
+        const u = i + j, v = i + j + (len >> 1);
+        const tRe = re[v] * curRe - im[v] * curIm;
+        const tIm = re[v] * curIm + im[v] * curRe;
+        re[v] = re[u] - tRe; im[v] = im[u] - tIm;
+        re[u] += tRe; im[u] += tIm;
+        const newCurRe = curRe * wRe - curIm * wIm;
+        curIm = curRe * wIm + curIm * wRe;
+        curRe = newCurRe;
+      }
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// MAIN NOTE EXTRACTION — async chunked to avoid UI freeze
+// ═══════════════════════════════════════════════════════
+
+async function extractNotes(arrayBuffer, onPct) {
+  onPct(5);
+
+  // Step 1: Decode + bass isolation via OfflineAudioContext
+  const { mono, sr } = await decodeBassIsolated(arrayBuffer);
+  onPct(15);
+  await tick(1);
+
+  const len = mono.length;
+
+  // Step 2: Frame-by-frame pitch detection
+  // Use larger windows for bass: 100ms window, 25ms hop
+  // Larger window = better low-freq resolution
+  const WIN_SEC = 0.1;    // 100ms — good for bass (resolves down to ~40 Hz)
+  const HOP_SEC = 0.025;  // 25ms hop — decent time resolution
+  const WIN = Math.floor(sr * WIN_SEC);
+  const HOP = Math.floor(sr * HOP_SEC);
+  const totalFrames = Math.floor((len - WIN) / HOP);
+  const frameTime = HOP / sr;
+
+  // YIN threshold: 0.15 is more permissive, catches more notes
+  // but combined with HPS validation it stays accurate
+  const YIN_THR = 0.15;
+
+  // RMS threshold for silence detection
+  const RMS_THR = 0.005;
+
+  const pitches = []; // {time, freq, midi, rms}
+
+  const CHUNK = 200; // Process 200 frames then yield to UI
+
+  for (let fi = 0; fi < totalFrames; fi++) {
+    // Yield to UI thread every CHUNK frames
+    if (fi % CHUNK === 0) {
+      onPct(15 + Math.round((fi / totalFrames) * 55));
+      await tick(1);
+    }
+
+    const start = fi * HOP;
+    const frame = mono.subarray(start, start + WIN);
+
+    // RMS energy check
+    let rms = 0;
+    for (let i = 0; i < frame.length; i++) rms += frame[i] * frame[i];
+    rms = Math.sqrt(rms / frame.length);
+    if (rms < RMS_THR) continue;
+
+    const t = fi * frameTime;
+
+    // Primary: YIN pitch detection
+    const yinFreq = yinPitch(frame, sr, YIN_THR);
+
+    // Secondary: HPS for octave validation
+    const hpsFreq = hpsFundamental(frame, sr);
+
+    let finalFreq = null;
+
+    if (yinFreq && hpsFreq) {
+      // Both detectors agree within ~1 semitone -> high confidence
+      const ratio = yinFreq / hpsFreq;
+      if (ratio > 0.94 && ratio < 1.06) {
+        // Agreement — use YIN (more precise timing)
+        finalFreq = yinFreq;
+      } else if (ratio > 1.88 && ratio < 2.12) {
+        // YIN detected octave up — use HPS fundamental
+        finalFreq = hpsFreq;
+      } else if (ratio > 0.47 && ratio < 0.53) {
+        // YIN detected octave down — use YIN (likely correct subharmonic)
+        // Actually this is rare; prefer HPS in ambiguous cases
+        finalFreq = hpsFreq;
+      } else {
+        // Disagreement — trust HPS for fundamental, it's designed for this
+        finalFreq = hpsFreq;
+      }
+    } else if (yinFreq) {
+      finalFreq = yinFreq;
+    } else if (hpsFreq) {
+      finalFreq = hpsFreq;
+    }
+
+    if (!finalFreq) continue;
+
+    const midi = f2m(finalFreq);
+    const midiRound = Math.round(midi);
+
+    // Check bass range
+    if (midiRound < BASS_MIDI_LO || midiRound > BASS_MIDI_HI) continue;
+
+    pitches.push({ time: t, freq: finalFreq, midi: midiRound, rms });
+  }
+
+  onPct(72);
+  await tick(1);
+
+  // Step 3: Note segmentation — merge consecutive same-pitch frames
+  // with onset detection based on RMS jumps
+  if (pitches.length === 0) return [];
+
+  const notes = [];
+  let curMidi = pitches[0].midi;
+  let noteStart = pitches[0].time;
+  let noteRmsMax = pitches[0].rms;
+  let prevRms = pitches[0].rms;
+
+  for (let i = 1; i < pitches.length; i++) {
+    const p = pitches[i];
+    const gap = p.time - pitches[i - 1].time;
+    const rmsJump = p.rms / (prevRms + 1e-8);
+
+    // New note if:
+    // - Pitch changes by >= 1 semitone
+    // - Time gap > 80ms (silence between)
+    // - Large RMS increase (new attack) with same pitch
+    const isNewNote = (
+      p.midi !== curMidi ||
+      gap > 0.08 ||
+      (rmsJump > 2.5 && gap > 0.04)
+    );
+
+    if (isNewNote) {
+      const dur = pitches[i - 1].time - noteStart + frameTime;
+      if (dur >= 0.04) { // minimum note duration 40ms
+        const tab = midiToTab(curMidi);
+        if (tab) {
+          notes.push({
+            time: noteStart,
+            duration: dur,
+            midi: curMidi,
+            noteName: m2nn(curMidi),
+            string: tab.string,
+            fret: tab.fret,
+            rms: noteRmsMax
+          });
+        }
+      }
+      curMidi = p.midi;
+      noteStart = p.time;
+      noteRmsMax = p.rms;
+    } else {
+      if (p.rms > noteRmsMax) noteRmsMax = p.rms;
+    }
+    prevRms = p.rms;
+  }
+
+  // Final note
+  const lastP = pitches[pitches.length - 1];
+  const finalDur = lastP.time - noteStart + frameTime;
+  if (finalDur >= 0.04) {
+    const tab = midiToTab(curMidi);
+    if (tab) {
+      notes.push({
+        time: noteStart,
+        duration: finalDur,
+        midi: curMidi,
+        noteName: m2nn(curMidi),
+        string: tab.string,
+        fret: tab.fret,
+        rms: noteRmsMax
+      });
+    }
+  }
+
+  onPct(78);
+  return notes;
 }
 
 // ═══════════════════════════════════════════════════════
 // LYRICS PARSING
 // ═══════════════════════════════════════════════════════
 function parseLyrics(text){
-  // Returns array of {text, lineIndex} — flat list of lyric lines
   if(!text||!text.trim())return[];
   return text.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
 }
 
-// Assign a note index to each lyric line based on song timeline
-// Each lyric line gets the notes that fall in its proportional time window
 function alignLyricsToNotes(lines, notes, songDuration){
   if(!lines.length||!notes.length)return[];
   const segDur = songDuration / lines.length;
@@ -627,10 +978,9 @@ function makePDF_TabOnly(notes,song,artist,keyRoot,keyMode,semi){
   const xpStr=semi!==0?`  →  ${NM[newRoot]} ${keyMode}  (${semi>0?'+':''}${semi} st)`:'';
   const info=`Key: ${keyStr}${xpStr}`;
 
-  // Staff geometry — larger than previous version
   const TW=15,SSX=ML+TW+5,SSW=CW-TW-5;
-  const SS=14,SH=SS*3,MPR=4,MW=SSW/MPR; // SS=14 (was 11)
-  const FIRST_Y=90,ROW_STEP=SH+42;       // more breathing room
+  const SS=14,SH=SS*3,MPR=4,MW=SSW/MPR;
+  const FIRST_Y=90,ROW_STEP=SH+42;
   const ROWS_PG=Math.floor((PH-FIRST_Y-28)/ROW_STEP);
 
   let bpm=100;
@@ -719,24 +1069,17 @@ function makePDF_WithLyrics(notes,song,artist,keyRoot,keyMode,semi,lyricsLines){
   const xpStr=semi!==0?`  →  ${NM[newRoot]} ${keyMode}  (${semi>0?'+':''}${semi} st)`:'';
   const info=`Key: ${keyStr}${xpStr}`;
 
-  // In lyrics mode: each lyric line gets its own mini staff block
-  // Staff is wider / bigger for legibility
   const TW=15,SSX=ML+TW+5,SSW=CW-TW-5;
   const SS=13,SH=SS*3,MPR=4,MW=SSW/MPR;
-  const LYRIC_H=16; // height of lyric text row above staff
-  const BLOCK_H=SH+LYRIC_H+28; // total height per lyric block
+  const LYRIC_H=16;
+  const BLOCK_H=SH+LYRIC_H+28;
   const FIRST_Y=82;
   const BLOCKS_PG=Math.floor((PH-FIRST_Y-28)/BLOCK_H);
   const SMAP={G:0,D:1,A:2,E:3};
   const SLABELS=['G','D','A','E'];
 
-  // Align lyrics to notes
   const songDur=notes.length>0?notes[notes.length-1].time+1:1;
   const aligned=alignLyricsToNotes(lyricsLines,notes,songDur);
-
-  let bpm=100;
-  if(notes.length>4){const sp=notes[notes.length-1].time-notes[0].time;bpm=Math.max(60,Math.min(160,Math.round(notes.length/sp*28)));}
-  const segDurPDF=songDur/aligned.length; // each segment's duration in song time
 
   function drawHdr(){
     doc.setDrawColor(210,205,230);doc.setLineWidth(0.4);doc.line(ML,18,PW-MR,18);
@@ -764,39 +1107,30 @@ function makePDF_WithLyrics(notes,song,artist,keyRoot,keyMode,semi,lyricsLines){
     const yLyric=FIRST_Y+lb*BLOCK_H;
     const yTop=yLyric+LYRIC_H+4;
 
-    // Lyric text
     doc.setFont('helvetica','italic');doc.setFontSize(9.5);doc.setTextColor(40,38,70);
-    // Truncate if too long
     let lyricText=seg.text;
     const maxW=SSW+TW;
     while(lyricText.length>4&&doc.getTextWidth(lyricText)>maxW-4) lyricText=lyricText.slice(0,-1)+'…';
     doc.text(lyricText,SSX,yLyric+10);
 
-    // Light divider
     doc.setDrawColor(230,228,240);doc.setLineWidth(0.3);doc.line(SSX,yLyric+13,SSX+SSW,yLyric+13);
 
-    // String labels
     doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(100,95,140);
     for(let si=0;si<4;si++)doc.text(SLABELS[si],ML+TW-2,yTop+si*SS+3.5,{align:'center'});
 
-    // TAB label
     doc.setFont('helvetica','bold');doc.setFontSize(7.5);doc.setTextColor(110,100,155);
     const tx=ML+TW/2;
     doc.text('T',tx,yTop+1,{align:'center'});doc.text('A',tx,yTop+SS+1,{align:'center'});doc.text('B',tx,yTop+SS*2+1,{align:'center'});
 
-    // Horizontal lines
     doc.setDrawColor(50,48,75);doc.setLineWidth(0.4);
     for(let si=0;si<4;si++)doc.line(SSX,yTop+si*SS,SSX+SSW,yTop+si*SS);
 
-    // Bar lines (just start and end for lyric mode, cleaner look)
     doc.setLineWidth(1.0);doc.setDrawColor(50,48,75);
     doc.line(SSX,yTop,SSX,yTop+SH);
     doc.line(SSX+SSW,yTop,SSX+SSW,yTop+SH);
-    // internal bars at quarters
     doc.setLineWidth(0.45);
     for(let bi=1;bi<MPR;bi++){const bx=SSX+bi*MW;doc.line(bx,yTop,bx,yTop+SH);}
 
-    // Draw notes for this segment within the block width
     const segDur=seg.tEnd-seg.tStart;
     if(segDur<=0||seg.notes.length===0)return;
     for(const note of seg.notes){
@@ -812,13 +1146,9 @@ function makePDF_WithLyrics(notes,song,artist,keyRoot,keyMode,semi,lyricsLines){
     }
   }
 
-  // Render first page header
   drawHdr();
-
-  // Render each lyric block
   aligned.forEach((seg,i)=>drawLyricBlock(seg,i));
 
-  // Footers
   const tp=doc.getNumberOfPages();
   for(let p=1;p<=tp;p++){
     doc.setPage(p);doc.setDrawColor(190,186,210);doc.setLineWidth(0.3);doc.line(ML,PH-22,PW-MR,PH-22);
@@ -838,89 +1168,6 @@ function updateLyricsCount(){
   $('lyricsCount').textContent=`${lines.length} line${lines.length!==1?'s':''}`;
 }
 
-// ── Sync lyricsQuery field from song/artist inputs ──────────────
-function syncLyricsQuery(){
-  const s=$('songName').value.trim(), a=$('artistName').value.trim();
-  if(s||a) $('lyricsQuery').value=[s,a].filter(Boolean).join(' — ');
-  else $('lyricsQuery').value='';
-  $('btnSearchLyr').disabled=!(s||a);
-}
-
-// ── Lyrics search via Anthropic API (web search enabled) ─────────
-async function searchLyrics(){
-  const query = $('lyricsQuery').value.trim();
-  if(!query) return;
-
-  const btn=$('btnSearchLyr'), status=$('lyricsStatus'), statusTxt=$('lyricsStatusTxt');
-  const spinner=$('lyricsSpinner'), icon=$('searchIcon');
-
-  // UI: searching state
-  btn.disabled=true; icon.textContent='⏳';
-  status.className='lyrics-status on searching';
-  spinner.style.display='block';
-  statusTxt.textContent='Searching for lyrics…';
-
-  const systemPrompt = `You are a lyrics retrieval assistant. When asked for song lyrics, search the web and return ONLY the complete song lyrics as plain text — no commentary, no preamble, no markdown, no "Here are the lyrics:". Format: each sung line on its own line. Separate verses/choruses/bridges with a single blank line. Include section labels like [Verse 1], [Chorus] etc. If you cannot find the lyrics, respond with exactly: NOT_FOUND`;
-
-  const userPrompt = `Find the complete lyrics for: ${query}`;
-
-  try {
-    const resp = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1500,
-        system: systemPrompt,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: userPrompt }]
-      })
-    });
-
-    if(!resp.ok){
-      const errData = await resp.json().catch(()=>({}));
-      throw new Error(errData.error?.message || `API error ${resp.status}`);
-    }
-
-    const data = await resp.json();
-
-    // Extract text from content blocks
-    const textBlocks = data.content.filter(b=>b.type==='text').map(b=>b.text);
-    const fullText = textBlocks.join('\n').trim();
-
-    if(!fullText || fullText === 'NOT_FOUND' || fullText.startsWith('NOT_FOUND')) {
-      status.className='lyrics-status on error';
-      spinner.style.display='none';
-      statusTxt.textContent='Lyrics not found. Try a different search or paste them manually.';
-    } else {
-      $('lyricsText').value = fullText;
-      updateLyricsCount();
-      status.className='lyrics-status on found';
-      spinner.style.display='none';
-      const lineCount = parseLyrics(fullText).length;
-      statusTxt.textContent = `✓ Found ${lineCount} lines — review and edit below if needed.`;
-      $('lyricsEditNote').style.display='block';
-      // Rebuild downloads if analysis already done
-      if(gNotes.length){ const s=parseInt($('xpDir').value)||0; buildDownloads(s); }
-    }
-
-  } catch(e) {
-    status.className='lyrics-status on error';
-    spinner.style.display='none';
-    const msg = e.message||'Unknown error';
-    if(msg.includes('401')||msg.includes('auth')||msg.toLowerCase().includes('api key')){
-      statusTxt.textContent='API key missing or invalid. Try pasting lyrics manually.';
-    } else if(msg.includes('network')||msg.includes('fetch')){
-      statusTxt.textContent='Network error. Check connection or paste lyrics manually.';
-    } else {
-      statusTxt.textContent=`Search failed: ${msg.slice(0,80)}. Paste lyrics manually.`;
-    }
-  }
-
-  btn.disabled=false; icon.textContent='🔍';
-}
-
-// Render note frequency bars
 function renderNoteBars(hist,keyRoot){
   const el=$('notesBars');el.innerHTML='';
   const maxH=Math.max(...hist);if(maxH===0)return;
@@ -937,12 +1184,11 @@ function renderNoteBars(hist,keyRoot){
   }
 }
 
-// Render "used notes" pills — show only actually played pitch classes
 function renderUsedNotesPills(hist,keyRoot,targetEl,semi){
   targetEl.innerHTML='';
   const shiftedRoot=trR(keyRoot,semi);
   for(let i=0;i<12;i++){
-    const origI=(i-semi%12+12)%12; // un-transpose to check if used
+    const origI=(i-semi%12+12)%12;
     const actualI=((i)%12+12)%12;
     if(hist[origI]===0)continue;
     const d=document.createElement('div');
@@ -961,12 +1207,10 @@ function buildDownloads(semi){
   const base=(song||'bass_tab').replace(/\s+/g,'_');
   const sfx=semi!==0?`_transposed${semi>0?'+':''}${semi}st`:'';
 
-  // Standard PDF
   const blobStd=makePDF_TabOnly(gNotes,song,art,gKeyRoot,gKeyMode,semi);
   const urlStd=URL.createObjectURL(blobStd);
   $('dlStd').href=urlStd;$('dlStd').download=`${base}${sfx}_bass_tab.pdf`;
 
-  // Lyrics PDF (only if lyrics exist)
   const lyricsLines=parseLyrics($('lyricsText').value);
   if(lyricsLines.length>0){
     const blobLyr=makePDF_WithLyrics(gNotes,song,art,gKeyRoot,gKeyMode,semi,lyricsLines);
@@ -993,33 +1237,22 @@ function updateXpDisplay(){
   $('xpTo').textContent=NM[nr];
   $('xpSemi').textContent=s===0?'0 semitones':`${s>0?'+':''}${s} semitone${Math.abs(s)>1?'s':''}`;
   $('tgtKey').value=String(nr);
-  // Update transposed notes pills
-  renderUsedNotesPills(gUsedHist,$('keyRoot')||gKeyRoot,$('xpNotesPills'),s);
-  // Rebuild downloads with new transposition
+  renderUsedNotesPills(gUsedHist,gKeyRoot,$('xpNotesPills'),s);
   if(gNotes.length)buildDownloads(s);
 }
 
 // ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
-// Populate target key dropdown
 NM.forEach((n,i)=>{const o=document.createElement('option');o.value=i;o.textContent=n;$('tgtKey').appendChild(o);});
 
-// Dropzone
 const drop=$('drop'),fileIn=$('fileIn');
 drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over');});
 drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
 drop.addEventListener('drop',e=>{e.preventDefault();drop.classList.remove('over');if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
 fileIn.addEventListener('change',()=>{if(fileIn.files[0])handleFile(fileIn.files[0]);});
 
-// Sync lyrics query when user types song/artist manually
-$('songName').addEventListener('input',syncLyricsQuery);
-$('artistName').addEventListener('input',syncLyricsQuery);
-
-$('xpDir').addEventListener('change',()=>{
-  const tgt=parseInt($('tgtKey').value);if(!isNaN(tgt)){}  // keep in sync
-  updateXpDisplay();
-});
+$('xpDir').addEventListener('change',()=>updateXpDisplay());
 $('tgtKey').addEventListener('change',()=>{
   const tgt=parseInt($('tgtKey').value);if(isNaN(tgt))return;
   let s=tgt-gKeyRoot;if(s>6)s-=12;if(s<-6)s+=12;
@@ -1030,12 +1263,8 @@ $('tgtKey').addEventListener('change',()=>{
 
 function handleFile(f){
   if(!f.name.toLowerCase().endsWith('.mp3')&&!f.type.includes('mpeg')){showErr('Only MP3 files are accepted.');return;}
-  // Always clear and update song name from new file
   const cleaned = f.name.replace(/\.mp3$/i,'').replace(/[-_\.]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()).trim();
   $('songName').value = cleaned;
-
-  // Sync lyrics search field + enable search button
-  syncLyricsQuery();
 
   $('upWrap').classList.add('on');
   const badge=$('fileBadge');
@@ -1063,22 +1292,23 @@ async function startExtraction(){
   $('procBtn').disabled=true;$('anaWrap').classList.add('on');
   ['s1','s2','s3','s4','s5'].forEach(id=>ss(id,''));
   $('bigFill').style.width='0%';
-  ss('s1','active');$('bigFill').style.width='5%';await tick();
+  ss('s1','active');$('bigFill').style.width='5%';await tick(50);
   try{
-    ss('s2','active');$('bigFill').style.width='12%';await tick();
-    ss('s1','done');ss('s3','active');await tick();
+    ss('s2','active');$('bigFill').style.width='10%';await tick(50);
+    ss('s1','done');ss('s3','active');await tick(50);
 
+    // extractNotes handles decode, filtering, and pitch detection internally
+    // with async yields to keep the UI responsive
     const notes=await extractNotes(gAudioBuf.slice(0),p=>{$('bigFill').style.width=p+'%';});
     gNotes=notes;
-    if(!notes||notes.length===0)throw new Error('No pitched bass notes detected. Try an isolated bass track or DI recording.');
+    if(!notes||notes.length===0)throw new Error('No pitched bass notes detected. Try an isolated bass track or DI recording for best results.');
 
-    ss('s3','done');ss('s4','active');$('bigFill').style.width='82%';await tick();
+    ss('s3','done');ss('s4','active');$('bigFill').style.width='82%';await tick(50);
 
     const kr=detectKey(notes);
     gKeyRoot=kr.root;gKeyMode=kr.mode;
     gSongDuration=notes[notes.length-1].time+1;
 
-    // Key display
     $('keyVal').textContent=NM[gKeyRoot];
     $('keyMd').textContent=(gKeyMode.charAt(0).toUpperCase()+gKeyMode.slice(1))+' scale';
     $('noteCnt').textContent=notes.length;
@@ -1086,7 +1316,6 @@ async function startExtraction(){
     const mx=notes[notes.length-1].time;
     $('songDur').textContent=Math.floor(mx/60)+':'+(Math.floor(mx%60)+'').padStart(2,'0');
 
-    // Scale pills
     const scPills=$('scalePills');scPills.innerHTML='';
     const ints=gKeyMode==='major'?MAJ_INT:MIN_INT;
     ints.forEach((iv,i)=>{
@@ -1096,7 +1325,6 @@ async function startExtraction(){
       scPills.appendChild(d);
     });
 
-    // Chord chips
     const chEl=$('chordsEl');chEl.innerHTML='';
     getChords(gKeyRoot,gKeyMode).forEach(ch=>{
       const d=document.createElement('div');
@@ -1105,11 +1333,9 @@ async function startExtraction(){
       chEl.appendChild(d);
     });
 
-    // Notes used histogram & bars
     gUsedHist=getUsedNotes(notes);
     renderNoteBars(gUsedHist,gKeyRoot);
 
-    // Used notes pills (original key)
     const upEl=$('usedNotesPills');upEl.innerHTML='';
     for(let i=0;i<12;i++){
       if(gUsedHist[i]===0)continue;
@@ -1119,18 +1345,16 @@ async function startExtraction(){
       upEl.appendChild(d);
     }
 
-    // Transpose init
     $('xpFrom').textContent=NM[gKeyRoot];
     $('xpTo').textContent=NM[gKeyRoot];
     $('xpDir').value='0';$('tgtKey').value=String(gKeyRoot);
     $('xpSemi').textContent='0 semitones';
     renderUsedNotesPills(gUsedHist,gKeyRoot,$('xpNotesPills'),0);
 
-    ss('s4','done');ss('s5','active');$('bigFill').style.width='90%';await tick();
+    ss('s4','done');ss('s5','active');$('bigFill').style.width='90%';await tick(50);
 
-    // Build downloads
     buildDownloads(0);
-    ss('s5','done');$('bigFill').style.width='100%';await tick();
+    ss('s5','done');$('bigFill').style.width='100%';await tick(50);
     $('anaWrap').classList.remove('on');
     $('results').classList.add('on');
     $('results').scrollIntoView({behavior:'smooth',block:'start'});
@@ -1140,45 +1364,23 @@ async function startExtraction(){
   $('procBtn').disabled=false;
 }
 
-function generateTransposedPDF(){
-  if(!gNotes.length)return;
-  const s=parseInt($('xpDir').value)||0;
-  buildDownloads(s);
-}
-
 function resetForNewSong(){
-  // Reset all state for a new song without reloading page
   gNotes=[];gKeyRoot=0;gKeyMode='major';gAudioBuf=null;gSongDuration=0;
   gUsedHist=new Float64Array(12);
-
-  // Reset UI
   $('results').classList.remove('on');
   $('anaWrap').classList.remove('on');
   $('errBox').classList.remove('on');
   $('procBtn').disabled=true;
   $('bigFill').style.width='0%';
   ['s1','s2','s3','s4','s5'].forEach(id=>ss(id,''));
-
-  // Reset form
   $('songName').value='';
   $('artistName').value='';
   $('lyricsText').value='';
-  $('lyricsQuery').value='';
   $('lyricsCount').textContent='0 lines';
-  $('lyricsEditNote').style.display='none';
-  $('lyricsStatus').className='lyrics-status';
-  $('lyricsStatusTxt').textContent='';
-  $('lyricsSpinner').style.display='none';
-  $('searchIcon').textContent='🔍';
-  $('btnSearchLyr').disabled=true;
   $('fileBadge').textContent='';$('fileBadge').classList.remove('on');
   $('upFill').style.width='0%';$('upPct').textContent='0%';
   $('xpDir').value='0';
-
-  // Reset file input so same file can be re-uploaded if needed
   fileIn.value='';
-
-  // Scroll to top
   window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
